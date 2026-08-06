@@ -11,4 +11,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    // Matches the backend's CORS/trustedOrigins allowlist (see cafis/backend).
+    port: 3000,
+  },
 })

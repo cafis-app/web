@@ -108,7 +108,12 @@ const PLANS = [
     price: "$0",
     period: "forever",
     description: "For individuals trying things out.",
-    features: ["Up to 3 projects", "1 GB storage", "Community support", "Basic analytics"],
+    features: [
+      "Up to 3 projects",
+      "1 GB storage",
+      "Community support",
+      "Basic analytics",
+    ],
     cta: "Get started",
     highlighted: false,
   },
@@ -173,7 +178,10 @@ export function Home() {
       {/* Navbar */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <a href="#" className="flex items-center gap-2 font-heading font-semibold">
+          <a
+            href="#"
+            className="flex items-center gap-2 font-heading font-semibold"
+          >
             <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Sparkles className="size-4" />
             </span>
@@ -181,15 +189,18 @@ export function Home() {
           </a>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="transition-colors hover:text-foreground">
+              <a
+                key={link.href}
+                href={link.href}
+                className="transition-colors hover:text-foreground"
+              >
                 {link.label}
               </a>
             ))}
           </nav>
           <div className="hidden items-center gap-2 md:flex">
-            <Button variant="ghost">Sign in</Button>
             <Button>
-              Get started
+              Download app
               <ArrowRight />
             </Button>
           </div>
@@ -206,13 +217,13 @@ export function Home() {
             <Sparkles className="opacity-70" />
             Now with AI-powered workflows
           </Badge>
-          <h1 className="mx-auto mt-6 max-w-3xl text-balance font-heading text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
+          <h1 className="mx-auto mt-6 max-w-3xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
             Run your entire team from one calm workspace
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-muted-foreground sm:text-lg">
-            Nimbus brings your docs, tasks, and conversations together with automation and
-            analytics built in, so your team spends less time switching tabs and more time
-            shipping.
+            Nimbus brings your docs, tasks, and conversations together with
+            automation and analytics built in, so your team spends less time
+            switching tabs and more time shipping.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button size="lg" className="w-full sm:w-auto">
@@ -249,7 +260,10 @@ export function Home() {
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-70 grayscale">
               {LOGOS.map((logo) => (
-                <span key={logo} className="font-heading text-lg font-semibold text-muted-foreground">
+                <span
+                  key={logo}
+                  className="font-heading text-lg font-semibold text-muted-foreground"
+                >
                   {logo}
                 </span>
               ))}
@@ -261,12 +275,12 @@ export function Home() {
         <section id="features" className="mx-auto max-w-6xl px-6 py-24">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="outline">Features</Badge>
-            <h2 className="mt-4 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
               Everything your team needs, nothing it doesn&apos;t
             </h2>
             <p className="mt-4 text-balance text-muted-foreground">
-              Purpose-built tools that adapt to how your team already works, backed by
-              infrastructure that scales with you.
+              Purpose-built tools that adapt to how your team already works,
+              backed by infrastructure that scales with you.
             </p>
           </div>
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -277,7 +291,9 @@ export function Home() {
                     <feature.icon className="size-5" />
                   </span>
                   <h3 className="font-heading font-medium">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -289,8 +305,12 @@ export function Home() {
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4">
             {STATS.map((stat) => (
               <div key={stat.label}>
-                <p className="font-heading text-3xl font-semibold sm:text-4xl">{stat.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
+                <p className="font-heading text-3xl font-semibold sm:text-4xl">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {stat.label}
+                </p>
               </div>
             ))}
           </div>
@@ -300,7 +320,7 @@ export function Home() {
         <section id="testimonials" className="mx-auto max-w-6xl px-6 py-24">
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="outline">Testimonials</Badge>
-            <h2 className="mt-4 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
               Loved by teams around the world
             </h2>
           </div>
@@ -313,15 +333,24 @@ export function Home() {
                       <Star key={i} className="size-4 fill-current" />
                     ))}
                   </div>
-                  <p className="text-sm text-muted-foreground">&ldquo;{testimonial.quote}&rdquo;</p>
+                  <p className="text-sm text-muted-foreground">
+                    &ldquo;{testimonial.quote}&rdquo;
+                  </p>
                   <div className="mt-2 flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-                      <AvatarFallback>{testimonial.name.slice(0, 2)}</AvatarFallback>
+                      <AvatarImage
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                      />
+                      <AvatarFallback>
+                        {testimonial.name.slice(0, 2)}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {testimonial.role}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -335,11 +364,12 @@ export function Home() {
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
               <Badge variant="outline">Pricing</Badge>
-              <h2 className="mt-4 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                 Simple pricing that scales with you
               </h2>
               <p className="mt-4 text-balance text-muted-foreground">
-                Start for free, upgrade when you need more. No hidden fees, cancel anytime.
+                Start for free, upgrade when you need more. No hidden fees,
+                cancel anytime.
               </p>
             </div>
             <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -358,10 +388,16 @@ export function Home() {
                       {plan.highlighted ? <Badge>Most popular</Badge> : null}
                     </div>
                     <div>
-                      <span className="font-heading text-4xl font-semibold">{plan.price}</span>
-                      <span className="ml-1 text-sm text-muted-foreground">{plan.period}</span>
+                      <span className="font-heading text-4xl font-semibold">
+                        {plan.price}
+                      </span>
+                      <span className="ml-1 text-sm text-muted-foreground">
+                        {plan.period}
+                      </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{plan.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {plan.description}
+                    </p>
                     <Separator />
                     <ul className="flex flex-col gap-2.5 text-sm">
                       {plan.features.map((feature) => (
@@ -388,7 +424,7 @@ export function Home() {
         <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
           <div className="text-center">
             <Badge variant="outline">FAQ</Badge>
-            <h2 className="mt-4 text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
               Frequently asked questions
             </h2>
           </div>
@@ -405,12 +441,12 @@ export function Home() {
         {/* CTA */}
         <section className="mx-auto max-w-6xl px-6 pb-24">
           <div className="flex flex-col items-center gap-6 rounded-3xl bg-primary px-6 py-16 text-center text-primary-foreground">
-            <h2 className="text-balance font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
               Ready to bring your team together?
             </h2>
             <p className="max-w-xl text-balance text-primary-foreground/80">
-              Join thousands of teams already running on Nimbus. Get started in minutes, no
-              credit card required.
+              Join thousands of teams already running on Nimbus. Get started in
+              minutes, no credit card required.
             </p>
             <Button size="lg" variant="secondary">
               Start your free trial
@@ -424,7 +460,10 @@ export function Home() {
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 sm:flex-row sm:justify-between">
           <div>
-            <a href="#" className="flex items-center gap-2 font-heading font-semibold">
+            <a
+              href="#"
+              className="flex items-center gap-2 font-heading font-semibold"
+            >
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Sparkles className="size-4" />
               </span>
@@ -437,20 +476,60 @@ export function Home() {
           <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-3">
             <div className="flex flex-col gap-2">
               <p className="font-medium">Product</p>
-              <a href="#features" className="text-muted-foreground hover:text-foreground">Features</a>
-              <a href="#pricing" className="text-muted-foreground hover:text-foreground">Pricing</a>
-              <a href="#faq" className="text-muted-foreground hover:text-foreground">FAQ</a>
+              <a
+                href="#features"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Features
+              </a>
+              <a
+                href="#pricing"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Pricing
+              </a>
+              <a
+                href="#faq"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                FAQ
+              </a>
             </div>
             <div className="flex flex-col gap-2">
               <p className="font-medium">Company</p>
-              <a href="#" className="text-muted-foreground hover:text-foreground">About</a>
-              <a href="#" className="text-muted-foreground hover:text-foreground">Blog</a>
-              <a href="#" className="text-muted-foreground hover:text-foreground">Careers</a>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                About
+              </a>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Blog
+              </a>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Careers
+              </a>
             </div>
             <div className="flex flex-col gap-2">
               <p className="font-medium">Legal</p>
-              <a href="#" className="text-muted-foreground hover:text-foreground">Privacy</a>
-              <a href="#" className="text-muted-foreground hover:text-foreground">Terms</a>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Privacy
+              </a>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Terms
+              </a>
             </div>
           </div>
         </div>
