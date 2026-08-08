@@ -1,12 +1,10 @@
 import {
   ArrowLeftRight,
-  Landmark,
   LayoutDashboard,
   LogOut,
   Mail,
   Sparkles,
   Users,
-  Wallet,
 } from "lucide-react"
 import { Link, Outlet, useLocation } from "react-router-dom"
 
@@ -28,16 +26,13 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/lib/auth-context"
 
+import logo from "@/assets/cafis-logo-no-bg.png"
+
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/apology-outreach", label: "Apology outreach", icon: Mail },
-]
-
-const SOON_ITEMS = [
-  { label: "Debts", icon: Landmark },
-  { label: "Transfers", icon: ArrowLeftRight },
-  { label: "Wallets", icon: Wallet },
-  { label: "Users", icon: Users },
+  { to: "/dashboard/transfers", label: "Transfers", icon: ArrowLeftRight },
+  { to: "/dashboard/users", label: "Users", icon: Users },
 ]
 
 export function AdminLayout() {
@@ -50,7 +45,13 @@ export function AdminLayout() {
         <SidebarHeader>
           <div className="flex items-center gap-2 px-1 py-1">
             <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="size-4" />
+              <img
+                src={logo}
+                alt="Cafis logo"
+                width={28}
+                height={28}
+                className="rounded-lg"
+              />
             </span>
             <span className="font-heading font-semibold group-data-[collapsible=icon]:hidden">
               Cafis Admin
@@ -67,25 +68,13 @@ export function AdminLayout() {
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton
                       render={<Link to={item.to} />}
-                      isActive={location.pathname === item.to}
+                      isActive={
+                        item.to === "/dashboard"
+                          ? location.pathname === item.to
+                          : location.pathname.startsWith(item.to)
+                      }
                       tooltip={item.label}
                     >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup>
-            <SidebarGroupLabel>Coming soon</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {SOON_ITEMS.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton disabled tooltip={item.label}>
                       <item.icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
@@ -99,9 +88,7 @@ export function AdminLayout() {
         <SidebarFooter>
           <div className="flex items-center gap-2 px-1 py-1 group-data-[collapsible=icon]:justify-center">
             <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
-              <span className="truncate text-sm font-medium">
-                {user?.name}
-              </span>
+              <span className="truncate text-sm font-medium">{user?.name}</span>
               <span className="truncate text-xs text-muted-foreground">
                 {user?.email}
               </span>

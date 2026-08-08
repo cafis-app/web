@@ -1,15 +1,14 @@
 import {
-  ArrowRight,
-  BarChart3,
-  Check,
-  Layers,
+  FileClock,
+  Globe2,
+  Lock,
   Menu,
-  Shield,
+  Send,
+  ShieldCheck,
   Sparkles,
-  Star,
-  Workflow,
-  Zap,
+  Wallet,
 } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,156 +18,116 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { PhoneFrame } from "@/components/phone-frame"
+
+import apologyFormScreen from "@/assets/apology-form-screen.png"
+import apologyScreen from "@/assets/apology-screen.png"
+import cafisLogo from "@/assets/cafis-logo-no-bg.png"
+import homeScreen from "@/assets/home-screen.png"
+import profileScreen from "@/assets/profile-screen.png"
+import walletScreen from "@/assets/wallet-screen.png"
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Testimonials", href: "#testimonials" },
+  { label: "How it works", href: "#how-it-works" },
   { label: "FAQ", href: "#faq" },
 ]
 
-const LOGOS = ["Acme", "Globex", "Initech", "Umbrella", "Soylent", "Hooli"]
-
 const FEATURES = [
   {
-    icon: Zap,
-    title: "Automated workflows",
+    icon: ShieldCheck,
+    title: "Your money is held safely",
     description:
-      "Build no-code automations that connect every tool your team already uses in minutes, not weeks.",
+      "The moment you send an apology, the funds move into escrow. They're only released to the other person once they accept — otherwise every cent comes back to you.",
   },
   {
-    icon: BarChart3,
-    title: "Real-time analytics",
+    icon: FileClock,
+    title: "Track every apology",
     description:
-      "Track the metrics that matter with live dashboards and reports you can share with anyone.",
+      "See everything you've sent and received in one place, with a clear status for each: pending, accepted, or declined.",
   },
   {
-    icon: Layers,
-    title: "Unified workspace",
+    icon: Send,
+    title: "Reach anyone, even without the app",
     description:
-      "Bring docs, tasks, and conversations into a single place so nothing falls through the cracks.",
+      "No account on Cafis yet? We'll text them a claim link straight away. They have 7 days to accept before the money is automatically returned to you.",
   },
   {
-    icon: Shield,
-    title: "Enterprise-grade security",
+    icon: Wallet,
+    title: "A simple wallet",
     description:
-      "SOC 2 Type II compliant with SSO, granular permissions, and audit logs out of the box.",
+      "Deposit and withdraw in a couple of taps, and see your balance and transaction history update instantly.",
   },
   {
-    icon: Workflow,
-    title: "Powerful integrations",
+    icon: Globe2,
+    title: "Built for Somaliland",
     description:
-      "Connect to over 100 tools including Slack, Notion, and GitHub with just a couple of clicks.",
+      "The entire app is in Somali, priced in US dollars, and covers the cities you actually send money to.",
   },
   {
-    icon: Sparkles,
-    title: "AI-assisted insights",
+    icon: Lock,
+    title: "Your account, protected",
     description:
-      "Let built-in AI summarize threads, draft updates, and surface what needs your attention.",
+      "Update your profile and password anytime, with account security built in from the start.",
   },
 ]
 
-const STATS = [
-  { value: "12k+", label: "Teams onboard" },
-  { value: "99.99%", label: "Uptime SLA" },
-  { value: "4.9/5", label: "Average rating" },
-  { value: "40+", label: "Integrations" },
-]
-
-const TESTIMONIALS = [
+const STEPS = [
   {
-    name: "Jordan Blake",
-    role: "VP of Operations, Globex",
-    quote:
-      "We replaced four separate tools with this platform and cut our weekly reporting time in half. It just works.",
-    avatar: "https://placehold.co/100x100/6d28d9/ffffff?text=JB",
+    title: "Tell us who, and why",
+    description:
+      "Enter their name, phone number, and city, then write your apology in your own words.",
   },
   {
-    name: "Priya Nair",
-    role: "Head of Product, Initech",
-    quote:
-      "The automations alone paid for the subscription in the first month. Our onboarding flow used to take days.",
-    avatar: "https://placehold.co/100x100/0f766e/ffffff?text=PN",
+    title: "Set the amount",
+    description: "Decide how much you want to send to make things right.",
   },
   {
-    name: "Marco Silva",
-    role: "Engineering Lead, Hooli",
-    quote:
-      "Rock-solid reliability and a support team that actually responds. Migrating our whole org was painless.",
-    avatar: "https://placehold.co/100x100/b45309/ffffff?text=MS",
+    title: "We hold it safely",
+    description:
+      "Your funds move into escrow immediately — whether or not they're on Cafis yet.",
+  },
+  {
+    title: "They respond",
+    description:
+      "They accept and the money settles with them, or decline and it's refunded to you in full.",
   },
 ]
 
-const PLANS = [
+const SCREENSHOTS = [
   {
-    name: "Starter",
-    price: "$0",
-    period: "forever",
-    description: "For individuals trying things out.",
-    features: [
-      "Up to 3 projects",
-      "1 GB storage",
-      "Community support",
-      "Basic analytics",
-    ],
-    cta: "Get started",
-    highlighted: false,
+    src: walletScreen,
+    alt: "Cafis wallet screen showing balance and recent activity",
+    caption: "Your wallet",
   },
   {
-    name: "Pro",
-    price: "$29",
-    period: "per user / month",
-    description: "For growing teams that need more power.",
-    features: [
-      "Unlimited projects",
-      "100 GB storage",
-      "Priority support",
-      "Advanced analytics",
-      "Custom integrations",
-    ],
-    cta: "Start free trial",
-    highlighted: true,
+    src: apologyScreen,
+    alt: "Cafis screen listing sent and received apology requests",
+    caption: "Every apology, tracked",
   },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "billed annually",
-    description: "For organizations with advanced needs.",
-    features: [
-      "Unlimited everything",
-      "Dedicated account manager",
-      "SSO & SCIM",
-      "Custom SLAs",
-      "Audit logs",
-    ],
-    cta: "Contact sales",
-    highlighted: false,
-  },
+  { src: profileScreen, alt: "Cafis profile screen", caption: "Your account" },
 ]
 
 const FAQS = [
   {
-    question: "Can I try the product before paying?",
+    question: "What happens to my money while I wait for a response?",
     answer:
-      "Yes, every plan starts with a 14-day free trial and no credit card is required to get started.",
+      "It sits safely in escrow — moved out of your available balance the moment you send the apology, but not yet paid to anyone. If they accept, it settles with them. If they decline, it's returned to your wallet in full.",
   },
   {
-    question: "Can I change plans later?",
+    question: "What if the person I'm apologizing to doesn't use Cafis?",
     answer:
-      "Absolutely. You can upgrade, downgrade, or cancel your plan at any time from your account settings.",
+      "We send them an SMS with a secure link to claim the money. They have 7 days to accept it — if they don't, the transfer expires and your funds are automatically refunded.",
   },
   {
-    question: "Do you offer discounts for nonprofits or education?",
-    answer:
-      "Yes, we offer 30% off for verified nonprofits and educational institutions. Reach out to our sales team.",
+    question: "What currency does Cafis use?",
+    answer: "All wallets and apologies on Cafis are in US dollars.",
   },
   {
-    question: "Is my data secure?",
+    question: "Can I change my mind after sending an apology?",
     answer:
-      "We're SOC 2 Type II compliant and encrypt data in transit and at rest. Enterprise plans include SSO and audit logs.",
+      "Once it's sent, the amount is held in escrow until the recipient responds. If they decline, or the request expires unclaimed, you get your money back automatically.",
   },
 ]
 
@@ -182,10 +141,8 @@ export function Home() {
             href="#"
             className="flex items-center gap-2 font-heading font-semibold"
           >
-            <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="size-4" />
-            </span>
-            Nimbus
+            <img src={cafisLogo} alt="Cafis" className="size-8" />
+            Cafis
           </a>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
             {NAV_LINKS.map((link) => (
@@ -199,10 +156,7 @@ export function Home() {
             ))}
           </nav>
           <div className="hidden items-center gap-2 md:flex">
-            <Button>
-              Download app
-              <ArrowRight />
-            </Button>
+            <Button>Download the app</Button>
           </div>
           <Button variant="outline" size="icon" className="md:hidden">
             <Menu />
@@ -212,209 +166,122 @@ export function Home() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center">
-          <Badge variant="secondary" className="mx-auto">
-            <Sparkles className="opacity-70" />
-            Now with AI-powered workflows
-          </Badge>
-          <h1 className="mx-auto mt-6 max-w-3xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
-            Run your entire team from one calm workspace
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-balance text-muted-foreground sm:text-lg">
-            Nimbus brings your docs, tasks, and conversations together with
-            automation and analytics built in, so your team spends less time
-            switching tabs and more time shipping.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" className="w-full sm:w-auto">
-              Start for free
-              <ArrowRight />
-            </Button>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Watch demo
-            </Button>
+        <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 pt-16 pb-20 md:grid-cols-2 md:pt-24">
+          <div>
+            <Badge variant="secondary">
+              <Sparkles className="opacity-70" />
+              Now live in Somaliland
+            </Badge>
+            <h1 className="mt-6 font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+              Say sorry the right way — with money that means it
+            </h1>
+            <p className="mt-6 max-w-lg text-balance text-muted-foreground sm:text-lg">
+              Cafis helps you settle a debt or make amends with a real apology,
+              backed by real money. Your funds stay safely in escrow until the
+              person you're apologizing to accepts.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Button size="lg" className="w-full sm:w-auto">
+                Download for iOS
+              </Button>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Get it on Android
+              </Button>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Coming soon to the App Store and Google Play
+            </p>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            No credit card required &middot; Free 14-day trial
-          </p>
-
-          <div className="mt-16 overflow-hidden rounded-2xl ring-1 ring-foreground/10">
-            <img
-              src="https://placehold.co/1200x700/f4f4f5/71717a?text=Product+Screenshot"
-              alt="Product dashboard preview"
-              className="w-full dark:hidden"
-            />
-            <img
-              src="https://placehold.co/1200x700/27272a/a1a1aa?text=Product+Screenshot"
-              alt="Product dashboard preview"
-              className="hidden w-full dark:block"
+          <div className="flex justify-center md:justify-end">
+            <PhoneFrame
+              src={homeScreen}
+              alt="Cafis home screen showing wallet balance and quick actions"
             />
           </div>
         </section>
 
-        {/* Logo cloud */}
-        <section className="border-y bg-muted/30 py-10">
+        {/* Features */}
+        <section id="features" className="border-y bg-muted/30 py-24">
           <div className="mx-auto max-w-6xl px-6">
-            <p className="text-center text-sm text-muted-foreground">
-              Trusted by teams at fast-growing companies
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-70 grayscale">
-              {LOGOS.map((logo) => (
-                <span
-                  key={logo}
-                  className="font-heading text-lg font-semibold text-muted-foreground"
-                >
-                  {logo}
-                </span>
+            <div className="mx-auto max-w-2xl text-center">
+              <Badge variant="outline">Features</Badge>
+              <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                Everything you need to make things right
+              </h2>
+            </div>
+            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {FEATURES.map((feature) => (
+                <Card key={feature.title} className="ring-foreground/10">
+                  <CardContent className="flex flex-col gap-3">
+                    <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <feature.icon className="size-5" />
+                    </span>
+                    <h3 className="font-heading font-medium">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Features */}
-        <section id="features" className="mx-auto max-w-6xl px-6 py-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="outline">Features</Badge>
-            <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-              Everything your team needs, nothing it doesn&apos;t
-            </h2>
-            <p className="mt-4 text-balance text-muted-foreground">
-              Purpose-built tools that adapt to how your team already works,
-              backed by infrastructure that scales with you.
-            </p>
-          </div>
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature) => (
-              <Card key={feature.title} className="ring-foreground/10">
-                <CardContent className="flex flex-col gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <feature.icon className="size-5" />
-                  </span>
-                  <h3 className="font-heading font-medium">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Stats */}
-        <section className="border-y bg-muted/30 py-16">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4">
-            {STATS.map((stat) => (
-              <div key={stat.label}>
-                <p className="font-heading text-3xl font-semibold sm:text-4xl">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section id="testimonials" className="mx-auto max-w-6xl px-6 py-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge variant="outline">Testimonials</Badge>
-            <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-              Loved by teams around the world
-            </h2>
-          </div>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((testimonial) => (
-              <Card key={testimonial.name} className="ring-foreground/10">
-                <CardContent className="flex flex-col gap-4">
-                  <div className="flex gap-0.5 text-primary">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="size-4 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    &ldquo;{testimonial.quote}&rdquo;
-                  </p>
-                  <div className="mt-2 flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                      />
-                      <AvatarFallback>
-                        {testimonial.name.slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
+        {/* How it works */}
+        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid gap-12 md:grid-cols-2 md:items-center">
+            <div className="order-2 flex justify-center md:order-1">
+              <PhoneFrame
+                src={apologyFormScreen}
+                alt="Cafis apology request form"
+              />
+            </div>
+            <div className="order-1 md:order-2">
+              <Badge variant="outline">How it works</Badge>
+              <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                From apology to settlement in four steps
+              </h2>
+              <ol className="mt-8 flex flex-col gap-6">
+                {STEPS.map((step, index) => (
+                  <li key={step.title} className="flex gap-4">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+                      {index + 1}
+                    </span>
                     <div>
-                      <p className="text-sm font-medium">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {testimonial.role}
+                      <h3 className="font-medium">{step.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {step.description}
                       </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         </section>
 
-        {/* Pricing */}
-        <section id="pricing" className="border-y bg-muted/30 py-24">
+        {/* Screenshot gallery */}
+        <section className="border-y bg-muted/30 py-24">
           <div className="mx-auto max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <Badge variant="outline">Pricing</Badge>
+              <Badge variant="outline">See it in action</Badge>
               <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                Simple pricing that scales with you
+                A closer look at Cafis
               </h2>
-              <p className="mt-4 text-balance text-muted-foreground">
-                Start for free, upgrade when you need more. No hidden fees,
-                cancel anytime.
-              </p>
             </div>
-            <div className="mt-14 grid gap-6 md:grid-cols-3">
-              {PLANS.map((plan) => (
-                <Card
-                  key={plan.name}
-                  className={
-                    plan.highlighted
-                      ? "ring-2 ring-primary"
-                      : "ring-foreground/10"
-                  }
+            <div className="mt-14 grid gap-10 sm:grid-cols-3">
+              {SCREENSHOTS.map((screenshot) => (
+                <div
+                  key={screenshot.caption}
+                  className="flex flex-col items-center gap-4"
                 >
-                  <CardContent className="flex flex-col gap-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-heading font-medium">{plan.name}</h3>
-                      {plan.highlighted ? <Badge>Most popular</Badge> : null}
-                    </div>
-                    <div>
-                      <span className="font-heading text-4xl font-semibold">
-                        {plan.price}
-                      </span>
-                      <span className="ml-1 text-sm text-muted-foreground">
-                        {plan.period}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.description}
-                    </p>
-                    <Separator />
-                    <ul className="flex flex-col gap-2.5 text-sm">
-                      {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-primary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button
-                      className="mt-auto w-full"
-                      variant={plan.highlighted ? "default" : "outline"}
-                    >
-                      {plan.cta}
-                    </Button>
-                  </CardContent>
-                </Card>
+                  <PhoneFrame src={screenshot.src} alt={screenshot.alt} />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {screenshot.caption}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
@@ -442,16 +309,19 @@ export function Home() {
         <section className="mx-auto max-w-6xl px-6 pb-24">
           <div className="flex flex-col items-center gap-6 rounded-3xl bg-primary px-6 py-16 text-center text-primary-foreground">
             <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-              Ready to bring your team together?
+              Ready to make things right?
             </h2>
             <p className="max-w-xl text-balance text-primary-foreground/80">
-              Join thousands of teams already running on Nimbus. Get started in
-              minutes, no credit card required.
+              Download Cafis and send your first apology today.
             </p>
-            <Button size="lg" variant="secondary">
-              Start your free trial
-              <ArrowRight />
-            </Button>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button size="lg" variant="secondary">
+                Download for iOS
+              </Button>
+              <Button size="lg" variant="secondary">
+                Get it on Android
+              </Button>
+            </div>
           </div>
         </section>
       </main>
@@ -464,77 +334,44 @@ export function Home() {
               href="#"
               className="flex items-center gap-2 font-heading font-semibold"
             >
-              <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Sparkles className="size-4" />
-              </span>
-              Nimbus
+              <img src={cafisLogo} alt="Cafis" className="size-8" />
+              Cafis
             </a>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              The all-in-one workspace for modern teams.
+              Settle debts and make amends, backed by real money held safely
+              until the other person responds.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-3">
-            <div className="flex flex-col gap-2">
-              <p className="font-medium">Product</p>
-              <a
-                href="#features"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Features
-              </a>
-              <a
-                href="#pricing"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Pricing
-              </a>
-              <a
-                href="#faq"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                FAQ
-              </a>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="font-medium">Company</p>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                About
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Blog
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Careers
-              </a>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="font-medium">Legal</p>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Privacy
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Terms
-              </a>
-            </div>
+          <div className="flex flex-col gap-2 text-sm">
+            <p className="font-medium">Product</p>
+            <a
+              href="#features"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              How it works
+            </a>
+            <a
+              href="#faq"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              FAQ
+            </a>
           </div>
         </div>
         <div className="border-t px-6 py-6 text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Nimbus, Inc. All rights reserved.
+          <p>
+            &copy; {new Date().getFullYear()} Cafis. All rights reserved.
+            {" · "}
+            <Link to="/login" className="hover:text-foreground hover:underline">
+              Admin login
+            </Link>
+          </p>
         </div>
       </footer>
     </div>
