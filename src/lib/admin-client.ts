@@ -34,6 +34,32 @@ export type UnregisteredCreditorApology = {
   }
 }
 
+export async function forgiveDebt(id: string) {
+  try {
+    const { data } = await apiClient.post<{
+      id: string
+      status: DebtStatus
+      currentBalance: number
+    }>(`/api/admin/debts/${id}/forgive`)
+    return data
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+export async function rejectDebt(id: string) {
+  try {
+    const { data } = await apiClient.post<{
+      id: string
+      status: DebtStatus
+      currentBalance: number
+    }>(`/api/admin/debts/${id}/reject`)
+    return data
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
 export async function getUnregisteredCreditorApologies(status?: string) {
   try {
     const { data } = await apiClient.get<{
@@ -89,6 +115,20 @@ export async function getPendingTransfers(status?: string) {
       { params: status ? { status } : undefined }
     )
     return data.transfers
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+export async function cancelPendingTransfer(id: string) {
+  try {
+    const { data } = await apiClient.post<{
+      id: string
+      status: PendingTransfer["status"]
+      amount: number
+      currency: string
+    }>(`/api/admin/transfers/${id}/cancel`)
+    return data
   } catch (error) {
     throw toApiError(error)
   }

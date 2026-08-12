@@ -13,8 +13,19 @@ import {
 } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Empty,
@@ -44,6 +55,7 @@ import {
 import { cn } from "@/lib/utils"
 import { ApiError } from "@/lib/api-client"
 import {
+  cancelPendingTransfer,
   getPendingTransfers,
   type PendingTransfer,
 } from "@/lib/admin-client"
@@ -211,6 +223,10 @@ export function Transfers() {
     key: "expiresAt",
     direction: "asc",
   })
+  const [cancellingIds, setCancellingIds] = React.useState<Set<string>>(
+    new Set()
+  )
+  const [rowErrors, setRowErrors] = React.useState<Record<string, string>>({})
 
   React.useEffect(() => {
     let cancelled = false
@@ -301,6 +317,41 @@ export function Transfers() {
         ? { key, direction: current.direction === "asc" ? "desc" : "asc" }
         : { key, direction: "asc" }
     )
+  }
+
+  async function handleCancel(id: string) {
+    setRowErrors((current) => {
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+    setCancellingIds((current) => new Set(current).add(id))
+
+    try {
+      const result = await cancelPendingTransfer(id)
+      setTransfers(
+        (current) =>
+          current?.map((transfer) =>
+            transfer.id === id
+              ? { ...transfer, status: result.status }
+              : transfer
+          ) ?? current
+      )
+    } catch (err) {
+      setRowErrors((current) => ({
+        ...current,
+        [id]:
+          err instanceof ApiError
+            ? err.message
+            : "Something went wrong. Please try again.",
+      }))
+    } finally {
+      setCancellingIds((current) => {
+        const next = new Set(current)
+        next.delete(id)
+        return next
+      })
+    }
   }
 
   return (
@@ -451,6 +502,7 @@ export function Transfers() {
                       sort={sort}
                       onSort={handleSort}
                     />
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -518,6 +570,66 @@ export function Transfers() {
                         </TableCell>
                         <TableCell className="text-muted-foreground">
                           {formatDateTime(transfer.createdAt)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {transfer.status === "pending" ? (
+                            <div className="flex flex-col items-end gap-1">
+                              <AlertDialog>
+                                <AlertDialogTrigger
+                                  render={
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      disabled={cancellingIds.has(
+                                        transfer.id
+                                      )}
+                                    />
+                                  }
+                                >
+                                  {cancellingIds.has(transfer.id) ? (
+                                    <Spinner className="size-3.5" />
+                                  ) : (
+                                    "Cancel"
+                                  )}
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogTitle>
+                                    Cancel this transfer?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    {formatCurrency(
+                                      transfer.amount,
+                                      transfer.currency
+                                    )}{" "}
+                                    will be refunded to{" "}
+                                    {transfer.sender?.name ?? "the sender"}
+                                    &apos;s wallet immediately. This can&apos;t
+                                    be undone.
+                                  </AlertDialogDescription>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Keep transfer
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      variant="destructive"
+                                      onClick={() =>
+                                        handleCancel(transfer.id)
+                                      }
+                                    >
+                                      Cancel transfer
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                              {rowErrors[transfer.id] ? (
+                                <span className="text-xs text-destructive">
+                                  {rowErrors[transfer.id]}
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
                         </TableCell>
                       </TableRow>
                     )

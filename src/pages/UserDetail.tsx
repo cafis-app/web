@@ -15,8 +15,19 @@ import {
 import { Link, useParams } from "react-router-dom"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -29,7 +40,14 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ApiError } from "@/lib/api-client"
-import { getUserDetail, type UserDetail as UserDetailData } from "@/lib/admin-client"
+import {
+  forgiveDebt,
+  getUserDetail,
+  rejectDebt,
+  type UserDetail as UserDetailData,
+} from "@/lib/admin-client"
+
+const RESOLVABLE_DEBT_STATUSES = ["pending", "in_negotiation", "partially_paid"]
 
 const DEBT_STATUS_VARIANT: Record<
   string,
@@ -107,6 +125,10 @@ export function UserDetail() {
   const [data, setData] = React.useState<UserDetailData | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
+  const [resolvingIds, setResolvingIds] = React.useState<Set<string>>(
+    new Set()
+  )
+  const [rowErrors, setRowErrors] = React.useState<Record<string, string>>({})
 
   React.useEffect(() => {
     if (!id) return
@@ -134,6 +156,53 @@ export function UserDetail() {
       cancelled = true
     }
   }, [id])
+
+  async function handleResolve(debtId: string, action: "forgive" | "reject") {
+    setRowErrors((current) => {
+      const next = { ...current }
+      delete next[debtId]
+      return next
+    })
+    setResolvingIds((current) => new Set(current).add(debtId))
+
+    try {
+      const result =
+        action === "forgive"
+          ? await forgiveDebt(debtId)
+          : await rejectDebt(debtId)
+
+      setData((current) =>
+        current
+          ? {
+              ...current,
+              debts: current.debts.map((debt) =>
+                debt.id === debtId
+                  ? {
+                      ...debt,
+                      status: result.status,
+                      currentBalance: result.currentBalance,
+                    }
+                  : debt
+              ),
+            }
+          : current
+      )
+    } catch (err) {
+      setRowErrors((current) => ({
+        ...current,
+        [debtId]:
+          err instanceof ApiError
+            ? err.message
+            : "Something went wrong. Please try again.",
+      }))
+    } finally {
+      setResolvingIds((current) => {
+        const next = new Set(current)
+        next.delete(debtId)
+        return next
+      })
+    }
+  }
 
   return (
     <div className="flex flex-col gap-1">
@@ -301,11 +370,12 @@ export function UserDetail() {
                         <TableHead>Status</TableHead>
                         <TableHead>Due</TableHead>
                         <TableHead>Created</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {data.debts.length === 0 ? (
-                        <EmptyRow colSpan={6} message="No debts yet." />
+                        <EmptyRow colSpan={7} message="No debts yet." />
                       ) : (
                         data.debts.map((debt) => (
                           <TableRow key={debt.id}>
@@ -356,6 +426,101 @@ export function UserDetail() {
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                               {formatDate(debt.createdAt)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {RESOLVABLE_DEBT_STATUSES.includes(
+                                debt.status
+                              ) ? (
+                                <div className="flex flex-col items-end gap-1">
+                                  <div className="flex justify-end gap-1.5">
+                                    {(
+                                      [
+                                        {
+                                          action: "forgive" as const,
+                                          label: "Forgive",
+                                          variant: "outline" as const,
+                                          verb: "Forgive this debt?",
+                                          detail:
+                                            "and the debt will be closed",
+                                        },
+                                        {
+                                          action: "reject" as const,
+                                          label: "Reject",
+                                          variant: "destructive" as const,
+                                          verb: "Reject this debt?",
+                                          detail:
+                                            "but the debt stays on record as rejected",
+                                        },
+                                      ]
+                                    ).map((option) => {
+                                      const debtorName =
+                                        debt.role === "debtor"
+                                          ? data.user.name
+                                          : debt.counterpartyName
+                                      return (
+                                        <AlertDialog key={option.action}>
+                                          <AlertDialogTrigger
+                                            render={
+                                              <Button
+                                                variant={option.variant}
+                                                size="sm"
+                                                disabled={resolvingIds.has(
+                                                  debt.id
+                                                )}
+                                              />
+                                            }
+                                          >
+                                            {resolvingIds.has(debt.id) ? (
+                                              <Spinner className="size-3.5" />
+                                            ) : (
+                                              option.label
+                                            )}
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogTitle>
+                                              {option.verb}
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              {formatCurrency(
+                                                debt.currentBalance,
+                                                debt.currency
+                                              )}{" "}
+                                              will be refunded to{" "}
+                                              {debtorName}, {option.detail}.
+                                              This can&apos;t be undone.
+                                            </AlertDialogDescription>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>
+                                                Cancel
+                                              </AlertDialogCancel>
+                                              <AlertDialogAction
+                                                variant={option.variant}
+                                                onClick={() =>
+                                                  handleResolve(
+                                                    debt.id,
+                                                    option.action
+                                                  )
+                                                }
+                                              >
+                                                {option.label}
+                                              </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                      )
+                                    })}
+                                  </div>
+                                  {rowErrors[debt.id] ? (
+                                    <span className="text-xs text-destructive">
+                                      {rowErrors[debt.id]}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  —
+                                </span>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))
