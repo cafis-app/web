@@ -75,6 +75,39 @@ export async function rejectDebt(id: string) {
   }
 }
 
+export type DebtParty = {
+  id?: string
+  name: string | null
+  email: string | null
+  phoneNumber: string | null
+  city?: string | null
+}
+
+export type Debt = {
+  id: string
+  status: DebtStatus
+  originalAmount: number
+  currentBalance: number
+  currency: string
+  dueDate: string | null
+  createdAt: string
+  debtor: DebtParty | null
+  creditor: DebtParty | null
+  creditorRegistered: boolean
+}
+
+export async function getDebts(status?: string) {
+  try {
+    const { data } = await apiClient.get<{ debts: Debt[] }>(
+      "/api/admin/debts",
+      { params: status ? { status } : undefined }
+    )
+    return data.debts
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
 export async function getUnregisteredCreditorApologies(status?: string) {
   try {
     const { data } = await apiClient.get<{
@@ -153,7 +186,9 @@ export type UserSummary = {
   id: string
   name: string
   email: string
+  emailVerified: boolean
   phoneNumber: string | null
+  phoneNumberVerified: boolean
   city: string | null
   role: string
   createdAt: string
@@ -215,10 +250,11 @@ export type UserDetail = {
     id: string
     name: string
     email: string
+    emailVerified: boolean
     phoneNumber: string | null
+    phoneNumberVerified: boolean
     city: string | null
     role: string
-    emailVerified: boolean
     createdAt: string
   }
   wallets: Record<CurrencyCode, (WalletBalance & { balance: number }) | null>

@@ -287,7 +287,13 @@ export function UserDetail() {
                     {data.user.emailVerified ? (
                       <Badge variant="outline" className="gap-1">
                         <ShieldCheck className="size-3" />
-                        Verified
+                        Email verified
+                      </Badge>
+                    ) : null}
+                    {data.user.phoneNumberVerified ? (
+                      <Badge variant="outline" className="gap-1">
+                        <ShieldCheck className="size-3" />
+                        Phone verified
                       </Badge>
                     ) : null}
                   </div>

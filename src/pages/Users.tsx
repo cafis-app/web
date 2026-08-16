@@ -1,8 +1,10 @@
 import * as React from "react"
 import {
+  AlertCircle,
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  CheckCircle2,
   Search,
   ShieldCheck,
   UserPlus,
@@ -74,6 +76,20 @@ function walletTotalsByCurrency(user: UserSummary) {
       ? user.wallets.SLSH.availableBalance + user.wallets.SLSH.escrowedBalance
       : 0,
   }
+}
+
+function VerifiedIcon({ verified }: { verified: boolean }) {
+  return verified ? (
+    <CheckCircle2
+      className="size-3.5 text-green-600 dark:text-green-500"
+      aria-label="Verified"
+    />
+  ) : (
+    <AlertCircle
+      className="size-3.5 text-amber-600 dark:text-amber-400"
+      aria-label="Not verified"
+    />
+  )
 }
 
 function SortableHead({
@@ -351,14 +367,24 @@ export function Users() {
                           </Avatar>
                           <div className="flex flex-col">
                             <span className="font-medium">{user.name}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
                               {user.email}
+                              <VerifiedIcon verified={user.emailVerified} />
                             </span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {user.phoneNumber ?? "—"}
+                        {user.phoneNumber ? (
+                          <span className="flex items-center gap-1">
+                            {user.phoneNumber}
+                            <VerifiedIcon
+                              verified={user.phoneNumberVerified}
+                            />
+                          </span>
+                        ) : (
+                          "—"
+                        )}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {user.city ?? "—"}

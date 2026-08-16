@@ -1,11 +1,11 @@
 import {
   ArrowLeftRight,
   Banknote,
+  HandCoins,
   LayoutDashboard,
   LogOut,
   Mail,
   Repeat,
-  Sparkles,
   Users,
 } from "lucide-react"
 import { Link, Outlet, useLocation } from "react-router-dom"
@@ -34,6 +34,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/apology-outreach", label: "Apology outreach", icon: Mail },
   { to: "/dashboard/transfers", label: "Transfers", icon: ArrowLeftRight },
+  { to: "/dashboard/debts", label: "Debts", icon: HandCoins },
   { to: "/dashboard/payout-requests", label: "Payout requests", icon: Banknote },
   {
     to: "/dashboard/gateway-transactions",

@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/admin-layout"
 import { ProtectedRoute } from "@/components/protected-route"
 import { ApologyOutreach } from "@/pages/ApologyOutreach"
 import { Dashboard } from "@/pages/Dashboard"
+import { Debts } from "@/pages/Debts"
 import { GatewayTransactions } from "@/pages/GatewayTransactions"
 import { Home } from "@/pages/Home"
 import { Login } from "@/pages/Login"
@@ -25,6 +26,7 @@ export function App() {
             element={<ApologyOutreach />}
           />
           <Route path="/dashboard/transfers" element={<Transfers />} />
+          <Route path="/dashboard/debts" element={<Debts />} />
           <Route
             path="/dashboard/payout-requests"
             element={<PayoutRequests />}
