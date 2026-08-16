@@ -28,6 +28,7 @@ import {
   getUnregisteredCreditorApologies,
   type UnregisteredCreditorApology,
 } from "@/lib/admin-client"
+import { formatCurrency } from "@/lib/format"
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -49,17 +50,6 @@ const STATUS_BADGE_VARIANT: Record<
   settled: "default",
   forgiven: "default",
   rejected: "destructive",
-}
-
-function formatCurrency(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount)
-  } catch {
-    return `${amount} ${currency}`
-  }
 }
 
 function formatDate(value: string) {

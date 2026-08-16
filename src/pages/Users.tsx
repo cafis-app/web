@@ -39,23 +39,13 @@ import {
 import { cn } from "@/lib/utils"
 import { ApiError } from "@/lib/api-client"
 import { getUsers, type UserSummary } from "@/lib/admin-client"
+import { formatCurrencyTotals } from "@/lib/format"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const WEEK_MS = 7 * DAY_MS
 
 type SortKey = "name" | "balance" | "createdAt"
 type Sort = { key: SortKey; direction: "asc" | "desc" }
-
-function formatCurrency(amount: number, currency = "USD") {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount)
-  } catch {
-    return `${amount} ${currency}`
-  }
-}
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -72,9 +62,18 @@ function getInitials(name: string | undefined) {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
 }
 
-function walletTotal(user: UserSummary) {
-  if (!user.wallet) return 0
-  return user.wallet.availableBalance + user.wallet.escrowedBalance
+// A user has up to one wallet per currency — sum available+escrowed per
+// currency rather than a single number, since USD and SLSH aren't
+// interchangeable.
+function walletTotalsByCurrency(user: UserSummary) {
+  return {
+    USD: user.wallets.USD
+      ? user.wallets.USD.availableBalance + user.wallets.USD.escrowedBalance
+      : 0,
+    SLSH: user.wallets.SLSH
+      ? user.wallets.SLSH.availableBalance + user.wallets.SLSH.escrowedBalance
+      : 0,
+  }
 }
 
 function SortableHead({
@@ -154,12 +153,20 @@ export function Users() {
     if (!users) return null
 
     const admins = users.filter((user) => user.role === "admin").length
-    const totalBalance = users.reduce((sum, user) => sum + walletTotal(user), 0)
+    const totalBalanceByCurrency = users.reduce<Record<string, number>>(
+      (totals, user) => {
+        const perUser = walletTotalsByCurrency(user)
+        totals.USD = (totals.USD || 0) + perUser.USD
+        totals.SLSH = (totals.SLSH || 0) + perUser.SLSH
+        return totals
+      },
+      {}
+    )
     const newThisWeek = users.filter(
       (user) => Date.now() - new Date(user.createdAt).getTime() < WEEK_MS
     ).length
 
-    return { total: users.length, admins, totalBalance, newThisWeek }
+    return { total: users.length, admins, totalBalanceByCurrency, newThisWeek }
   }, [users])
 
   const visibleUsers = React.useMemo(() => {
@@ -183,7 +190,10 @@ export function Users() {
           comparison = a.name.localeCompare(b.name)
           break
         case "balance":
-          comparison = walletTotal(a) - walletTotal(b)
+          // USD and SLSH balances aren't directly comparable — sort by USD
+          // balance as the simpler, defined ordering.
+          comparison =
+            walletTotalsByCurrency(a).USD - walletTotalsByCurrency(b).USD
           break
         case "createdAt":
           comparison =
@@ -244,7 +254,9 @@ export function Users() {
                 Total balance held
               </p>
               <p className="mt-1 font-heading text-2xl font-semibold">
-                {stats ? formatCurrency(stats.totalBalance) : "—"}
+                {stats
+                  ? formatCurrencyTotals(stats.totalBalanceByCurrency) || "—"
+                  : "—"}
               </p>
             </div>
             <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -361,12 +373,8 @@ export function Users() {
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
-                        {user.wallet
-                          ? formatCurrency(
-                              walletTotal(user),
-                              user.wallet.currency
-                            )
-                          : "—"}
+                        {formatCurrencyTotals(walletTotalsByCurrency(user)) ||
+                          "—"}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {formatDate(user.createdAt)}

@@ -22,6 +22,7 @@ import {
   type UnregisteredCreditorApology,
 } from "@/lib/admin-client"
 import { useAuth } from "@/lib/auth-context"
+import { formatCurrency } from "@/lib/format"
 
 const STAT_CARDS = [
   { key: "totalUsers", label: "Total users", icon: Users },
@@ -33,17 +34,6 @@ const STAT_CARDS = [
   },
   { key: "pendingTransfers", label: "Pending transfers", icon: Send },
 ] as const
-
-function formatCurrency(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount)
-  } catch {
-    return `${amount} ${currency}`
-  }
-}
 
 export function Dashboard() {
   const { user } = useAuth()

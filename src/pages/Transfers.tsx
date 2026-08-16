@@ -59,6 +59,7 @@ import {
   getPendingTransfers,
   type PendingTransfer,
 } from "@/lib/admin-client"
+import { formatCurrency, formatCurrencyTotals, sumByCurrency } from "@/lib/format"
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -82,17 +83,6 @@ const DAY_MS = 24 * 60 * 60 * 1000
 
 type SortKey = "sender" | "amount" | "expiresAt" | "createdAt"
 type Sort = { key: SortKey; direction: "asc" | "desc" }
-
-function formatCurrency(amount: number, currency = "USD") {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount)
-  } catch {
-    return `${amount} ${currency}`
-  }
-}
 
 function formatDateTime(value: string) {
   return new Date(value).toLocaleString(undefined, {
@@ -256,7 +246,13 @@ export function Transfers() {
     if (!transfers) return null
 
     const pending = transfers.filter((t) => t.status === "pending")
-    const pendingValue = pending.reduce((sum, t) => sum + t.amount, 0)
+    // A single sum would add dollars to shillings — keep per-currency
+    // totals apart instead.
+    const pendingValueByCurrency = sumByCurrency(
+      pending,
+      (t) => t.amount,
+      (t) => t.currency
+    )
     const expiringSoon = pending.filter((t) => {
       const remaining = msRemaining(t)
       return remaining > 0 && remaining < DAY_MS
@@ -266,7 +262,7 @@ export function Transfers() {
     return {
       total: transfers.length,
       pendingCount: pending.length,
-      pendingValue,
+      pendingValueByCurrency,
       expiringSoon,
       pastDue,
     }
@@ -296,7 +292,12 @@ export function Transfers() {
           )
           break
         case "amount":
-          comparison = a.amount - b.amount
+          // Different currencies aren't directly comparable — group by
+          // currency first so a sort never implies e.g. 50 USD < 5000 SLSH.
+          comparison =
+            a.currency !== b.currency
+              ? a.currency.localeCompare(b.currency)
+              : a.amount - b.amount
           break
         case "expiresAt":
           comparison =
@@ -369,7 +370,9 @@ export function Transfers() {
             <div>
               <p className="text-sm text-muted-foreground">Pending value</p>
               <p className="mt-1 font-heading text-2xl font-semibold">
-                {stats ? formatCurrency(stats.pendingValue) : "—"}
+                {stats
+                  ? formatCurrencyTotals(stats.pendingValueByCurrency) || "—"
+                  : "—"}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {stats ? `${stats.pendingCount} transfers` : ""}

@@ -1,12 +1,27 @@
 import { apiClient, toApiError } from "@/lib/api-client"
 
+// The app supports two currencies: USD and SLSH (Somali shillings). A user
+// has up to one wallet per currency, so wallet-shaped API responses are
+// keyed by currency rather than a single object.
+export type CurrencyCode = "USD" | "SLSH"
+
+export type WalletBalance = {
+  availableBalance: number
+  escrowedBalance: number
+  currency: string
+}
+
+export type WalletBalances = Record<CurrencyCode, WalletBalance | null>
+
 export type DebtStatus =
   | "pending"
   | "in_negotiation"
   | "partially_paid"
+  | "awaiting_payout"
   | "settled"
   | "forgiven"
   | "rejected"
+  | "cancelled"
 
 export type UnregisteredCreditorApology = {
   apologyId: string
@@ -142,11 +157,7 @@ export type UserSummary = {
   city: string | null
   role: string
   createdAt: string
-  wallet: {
-    availableBalance: number
-    escrowedBalance: number
-    currency: string
-  } | null
+  wallets: WalletBalances
 }
 
 export async function getUsers() {
@@ -193,6 +204,7 @@ export type UserDetailTransfer = {
 export type UserWalletTransaction = {
   id: string
   amount: number
+  currency: string
   type: string
   status: string
   createdAt: string
@@ -209,12 +221,7 @@ export type UserDetail = {
     emailVerified: boolean
     createdAt: string
   }
-  wallet: {
-    availableBalance: number
-    escrowedBalance: number
-    balance: number
-    currency: string
-  } | null
+  wallets: Record<CurrencyCode, (WalletBalance & { balance: number }) | null>
   walletTransactions: UserWalletTransaction[]
   debts: UserDetailDebt[]
   apologies: UserDetailApology[]
@@ -224,6 +231,110 @@ export type UserDetail = {
 export async function getUserDetail(id: string) {
   try {
     const { data } = await apiClient.get<UserDetail>(`/api/admin/users/${id}`)
+    return data
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+// Sifalo can only collect money, not disburse it — a creditor's
+// apology-acceptance payout or a wallet withdrawal has to be sent manually
+// by an admin, then marked resolved here.
+export type PayoutRequest = {
+  id: string
+  sourceType: "apology_acceptance" | "wallet_withdraw"
+  debtId: string | null
+  recipientPhoneNumber: string
+  amount: number
+  currency: string
+  status: "pending" | "completed" | "failed"
+  resolutionNote: string | null
+  createdAt: string
+  resolvedAt: string | null
+  recipient: {
+    id: string
+    name: string
+    email: string
+    phoneNumber: string | null
+  } | null
+}
+
+export async function getPayoutRequests(status?: string) {
+  try {
+    const { data } = await apiClient.get<{ payoutRequests: PayoutRequest[] }>(
+      "/api/admin/payout-requests",
+      { params: status ? { status } : undefined }
+    )
+    return data.payoutRequests
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+export async function resolvePayoutRequest(
+  id: string,
+  outcome: "completed" | "failed",
+  resolutionNote?: string
+) {
+  try {
+    const { data } = await apiClient.patch<{
+      id: string
+      status: PayoutRequest["status"]
+      amount: number
+      currency: string
+      resolutionNote: string | null
+    }>(`/api/admin/payout-requests/${id}/resolve`, {
+      outcome,
+      resolutionNote,
+    })
+    return data
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+// A "603 pending" Sifalo deposit with no documented way to find out how it
+// resolves — this lists them so an admin can check the Sifalo portal and
+// mark the outcome manually.
+export type GatewayTransaction = {
+  id: string
+  gateway: "waafi" | "edahab" | "pbwallet"
+  account: string
+  orderId: string
+  sid: string | null
+  requestedAmount: number
+  requestedCurrency: string
+  chargedAmount: number
+  chargedCurrency: string
+  status: "processing" | "succeeded" | "pending" | "failed"
+  responseCode: string | null
+  responseMessage: string | null
+  createdAt: string
+}
+
+export async function getGatewayTransactions(status?: string) {
+  try {
+    const { data } = await apiClient.get<{
+      gatewayTransactions: GatewayTransaction[]
+    }>("/api/admin/gateway-transactions", {
+      params: status ? { status } : undefined,
+    })
+    return data.gatewayTransactions
+  } catch (error) {
+    throw toApiError(error)
+  }
+}
+
+export async function resolveGatewayTransaction(
+  id: string,
+  outcome: "succeeded" | "failed"
+) {
+  try {
+    const { data } = await apiClient.patch<{
+      id: string
+      status: GatewayTransaction["status"]
+      requestedAmount: number
+    }>(`/api/admin/gateway-transactions/${id}/resolve`, { outcome })
     return data
   } catch (error) {
     throw toApiError(error)

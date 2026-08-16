@@ -4,11 +4,9 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Calendar,
-  Landmark,
   Mail,
   MapPin,
   Phone,
-  Send,
   ShieldCheck,
   Wallet as WalletIcon,
 } from "lucide-react"
@@ -44,8 +42,10 @@ import {
   forgiveDebt,
   getUserDetail,
   rejectDebt,
+  type CurrencyCode,
   type UserDetail as UserDetailData,
 } from "@/lib/admin-client"
+import { formatCurrency } from "@/lib/format"
 
 const RESOLVABLE_DEBT_STATUSES = ["pending", "in_negotiation", "partially_paid"]
 
@@ -71,17 +71,6 @@ const TRANSFER_STATUS_VARIANT: Record<
   cancelled: "outline",
 }
 
-function formatCurrency(amount: number, currency = "USD") {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount)
-  } catch {
-    return `${amount} ${currency}`
-  }
-}
-
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
     year: "numeric",
@@ -105,6 +94,57 @@ function getInitials(name: string | undefined) {
   if (parts.length === 0) return "?"
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+}
+
+// A user has up to one wallet per currency — one card per currency instead
+// of a single set of stat cards, since USD and SLSH balances aren't
+// interchangeable.
+function WalletCard({
+  currency,
+  wallet,
+}: {
+  currency: CurrencyCode
+  wallet: { availableBalance: number; escrowedBalance: number } | null
+}) {
+  return (
+    <Card className="ring-foreground/10">
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-muted-foreground">
+            {currency} wallet
+          </p>
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <WalletIcon className="size-4" />
+          </span>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <div>
+            <p className="text-xs text-muted-foreground">Available</p>
+            <p className="font-heading text-lg font-semibold">
+              {wallet ? formatCurrency(wallet.availableBalance, currency) : "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Escrowed</p>
+            <p className="font-heading text-lg font-semibold">
+              {wallet ? formatCurrency(wallet.escrowedBalance, currency) : "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="font-heading text-lg font-semibold">
+              {wallet
+                ? formatCurrency(
+                    wallet.availableBalance + wallet.escrowedBalance,
+                    currency
+                  )
+                : "—"}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 function EmptyRow({ colSpan, message }: { colSpan: number; message: string }) {
@@ -278,68 +318,9 @@ export function UserDetail() {
             </CardContent>
           </Card>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <Card className="ring-foreground/10">
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Available balance
-                  </p>
-                  <p className="mt-1 font-heading text-2xl font-semibold">
-                    {data.wallet
-                      ? formatCurrency(
-                          data.wallet.availableBalance,
-                          data.wallet.currency
-                        )
-                      : "—"}
-                  </p>
-                </div>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <WalletIcon className="size-4.5" />
-                </span>
-              </CardContent>
-            </Card>
-            <Card className="ring-foreground/10">
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Escrowed balance
-                  </p>
-                  <p className="mt-1 font-heading text-2xl font-semibold">
-                    {data.wallet
-                      ? formatCurrency(
-                          data.wallet.escrowedBalance,
-                          data.wallet.currency
-                        )
-                      : "—"}
-                  </p>
-                </div>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  <Landmark className="size-4.5" />
-                </span>
-              </CardContent>
-            </Card>
-            <Card className="ring-foreground/10">
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Total balance
-                  </p>
-                  <p className="mt-1 font-heading text-2xl font-semibold">
-                    {data.wallet
-                      ? formatCurrency(
-                          data.wallet.availableBalance +
-                            data.wallet.escrowedBalance,
-                          data.wallet.currency
-                        )
-                      : "—"}
-                  </p>
-                </div>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Send className="size-4.5" />
-                </span>
-              </CardContent>
-            </Card>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <WalletCard currency="USD" wallet={data.wallets.USD} />
+            <WalletCard currency="SLSH" wallet={data.wallets.SLSH} />
           </div>
 
           <Tabs defaultValue="debts" className="mt-8">
@@ -614,7 +595,10 @@ export function UserDetail() {
                               }
                             >
                               {transaction.amount < 0 ? "-" : "+"}
-                              {formatCurrency(Math.abs(transaction.amount))}
+                              {formatCurrency(
+                                Math.abs(transaction.amount),
+                                transaction.currency
+                              )}
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline">

@@ -1,8 +1,10 @@
 import {
   ArrowLeftRight,
+  Banknote,
   LayoutDashboard,
   LogOut,
   Mail,
+  Repeat,
   Sparkles,
   Users,
 } from "lucide-react"
@@ -32,6 +34,12 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/apology-outreach", label: "Apology outreach", icon: Mail },
   { to: "/dashboard/transfers", label: "Transfers", icon: ArrowLeftRight },
+  { to: "/dashboard/payout-requests", label: "Payout requests", icon: Banknote },
+  {
+    to: "/dashboard/gateway-transactions",
+    label: "Gateway transactions",
+    icon: Repeat,
+  },
   { to: "/dashboard/users", label: "Users", icon: Users },
 ]
 
