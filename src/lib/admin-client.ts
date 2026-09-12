@@ -343,6 +343,12 @@ export type GatewayTransaction = {
   chargedAmount: number
   chargedCurrency: string
   status: "processing" | "succeeded" | "pending" | "failed"
+  // Whether an admin may still mark it succeeded/failed. Covers unresolved
+  // rows plus "failed" rows with no gateway code (closed by an HTTP-level
+  // failure, where the customer may in fact have paid).
+  resolvable?: boolean
+  lastVerifiedAt?: string | null
+  verifyAttempts?: number
   responseCode: string | null
   responseMessage: string | null
   createdAt: string
