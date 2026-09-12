@@ -110,7 +110,9 @@ export function GatewayTransactions() {
 
   const stats = React.useMemo(() => {
     if (!transactions) return null
-    const pending = transactions.filter((t) => t.status === "pending")
+    const pending = transactions.filter(
+      (t) => t.resolvable ?? t.status === "pending"
+    )
     return { total: transactions.length, pendingCount: pending.length }
   }, [transactions])
 
@@ -269,7 +271,8 @@ export function GatewayTransactions() {
                         {formatDateTime(transaction.createdAt)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {transaction.status === "pending" ? (
+                        {(transaction.resolvable ??
+                          transaction.status === "pending") ? (
                           <div className="flex flex-col items-end gap-1">
                             <div className="flex justify-end gap-2">
                               <AlertDialog>
